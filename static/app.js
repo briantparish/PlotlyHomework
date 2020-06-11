@@ -11,9 +11,8 @@ function displayDemographics(name) {
         var demographicData = d3.select("#sample-metadata");
         
         demographicData.html(""); //Clear all html in #sample-metadata id
-        demographicData.append("ul");
         Object.entries(filtered).forEach((key) => { 
-            demographicData.append("li").text(`${key[0]}:  ${key[1]}`);    
+            demographicData.append("div").text(`${key[0]}:  ${key[1]}`);    
         });
     });
 }
@@ -27,23 +26,23 @@ function genPlots(id) {
         console.log(filtered);
         
         //slice first 10 otu ids
-        var top10ids = filtered.otu_ids.slice(0,10).reverse();
+        var first10ids = filtered.otu_ids.slice(0,10).reverse();
         
-        console.log("IDs: " + top10ids);
+        console.log("IDs: " + first10ids);
         //slice first 10 otu values
-        var top10values =  filtered.sample_values.slice(0,10).reverse();
-        console.log("Values: " + top10values);
+        var first10values =  filtered.sample_values.slice(0,10).reverse();
+        console.log("Values: " + first10values);
         
         //slice first 10 otu labels
-        var top10labels =  filtered.otu_labels.slice(0,10).reverse();
-        console.log ("labels: "  + top10labels);
+        var first10labels =  filtered.otu_labels.slice(0,10).reverse();
+        console.log ("labels: "  + first10labels);
         
         //Bar Chart
         //trace
         var tracebar = {
-            x: top10values,
-            y: top10ids.map(l => "OTU " + l), //Add "OTU" text to label,
-            text: top10labels,
+            x: first10values,
+            y: first10ids.map(l => "OTU " + l), //Add "OTU" text to label,
+            text: first10labels,
             marker: {
             color: "#337ab7"},
             type:"bar",
@@ -53,7 +52,7 @@ function genPlots(id) {
         var dataBar = [tracebar];
         //layout
         var layoutBar = {
-            title: "Top 10 OTU",
+            title: "First 10 OTUs",
             yaxis:{
                 tickmode:"linear",
             },
@@ -63,10 +62,10 @@ function genPlots(id) {
         Plotly.newPlot("bar", dataBar, layoutBar);
 
         //Gauge plot
-        //data
+        //trace
         var wfreq = json_data.metadata.filter(patient => patient.id == id)[0];
-        wfreq = wfreq.wfreq;
-        var dataGauge = [{
+        wfreq = +wfreq.wfreq; //set null values to 0
+        var traceGauge = {
             type: "indicator",
             mode: "gauge+number+delta",
             value: wfreq,
@@ -88,8 +87,10 @@ function genPlots(id) {
                 value: 3
               }
             }
-          }
-        ];
+          };
+        //data
+        dataGauge = [traceGauge];
+
         //layout
         var layoutGauge = { 
             width: 500,
@@ -107,7 +108,7 @@ function genPlots(id) {
             mode: "markers",
             marker: {
                 size: filtered.sample_values,
-                color: filtered.sample_values,
+                color: filtered.otu_ids,
                 sizeref: 1.4
             },
             text:  filtered.otu_labels
